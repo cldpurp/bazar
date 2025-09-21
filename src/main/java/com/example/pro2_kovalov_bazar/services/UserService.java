@@ -1,0 +1,83 @@
+package com.example.pro2_kovalov_bazar.services;
+
+import com.example.pro2_kovalov_bazar.models.User;
+import com.example.pro2_kovalov_bazar.models.enums.Role;
+import com.example.pro2_kovalov_bazar.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.security.Principal;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public boolean createUser(User user) {
+        String email = user.getEmail();
+        if (userRepository.findByEmail(email) != null) return false;
+        user.setActive(true);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.getRoles().add(Role.ROLE_USER);
+        log.info("Saving new User with email: {}", email);
+        userRepository.save(user);
+        return true;
+    }
+
+    public List<User> list() {
+        return userRepository.findAll();
+    }
+
+    public void banUser(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            if (user.isActive()) {
+                user.setActive(false);
+                log.info("Ban user with id = {}; email: {}", user.getId(), user.getEmail());
+            } else {
+                user.setActive(true);
+                log.info("Unban user with id = {}; email: {}", user.getId(), user.getEmail());
+            }
+        }
+        userRepository.save(user);
+    }
+
+    public void changeUserRoles(User user, Map<String, String> form) {
+        Set<String> roles = Arrays.stream(Role.values())
+                .map(Role::name)
+                .collect(Collectors.toSet());
+
+        user.getRoles().clear(); // Ensure the user has only one role
+
+        // Check for exactly one role to assign
+        String selectedRole = null;
+        for (String key : form.keySet()) {
+            if (roles.contains(key)) {
+                selectedRole = key; // Get the first valid role
+                break; // Stop after finding the first valid role
+            }
+        }
+
+        if (selectedRole != null) {
+            user.getRoles().add(Role.valueOf(selectedRole));
+        }
+
+        userRepository.save(user); // Save user with the new role
+    }
+
+    public User getUserByPrincipal(Principal principal) {
+        if (principal == null) return new User();
+        return userRepository.findByEmail(principal.getName());
+    }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+}
