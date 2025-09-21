@@ -23,7 +23,7 @@ public class Image {
     private String originalFileName;
 
     @Column(name = "size")
-    private Long size; //byte
+    private Long size;
 
     @Column(name = "contentType")
     private String contentType;
@@ -31,7 +31,7 @@ public class Image {
     @Column(name = "isPreviewImage")
     private boolean isPreviewImage;
 
-    @Lob //Large Object
+    @Lob
     @Column(name = "bytes", columnDefinition = "longblob")
     private byte[] bytes;
 

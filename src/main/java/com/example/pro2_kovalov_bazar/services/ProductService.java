@@ -70,7 +70,7 @@ public class ProductService {
     public void deleteProduct(User user, Long id) {
         Product product = productRepository.findById(id).orElse(null);
         if (product != null) {
-            log.debug("Found product to delete: " + product.toString());
+            log.debug("Found product to delete: {}", product);
             if (product.getUser().getId().equals(user.getId())) {
                 productRepository.delete(product);
                 log.info("Product with id = {} was deleted", id);

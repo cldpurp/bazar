@@ -54,7 +54,7 @@ public class UserService {
                 .map(Role::name)
                 .collect(Collectors.toSet());
 
-        user.getRoles().clear(); // Ensure the user has only one role
+        user.getRoles().clear();
 
         // Check for exactly one role to assign
         String selectedRole = null;
@@ -69,7 +69,7 @@ public class UserService {
             user.getRoles().add(Role.valueOf(selectedRole));
         }
 
-        userRepository.save(user); // Save user with the new role
+        userRepository.save(user);
     }
 
     public User getUserByPrincipal(Principal principal) {

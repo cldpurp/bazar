@@ -50,10 +50,6 @@ public class User implements UserDetails {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "user")
     private List<Product> products = new ArrayList<>();
 
-    public void addProductToUser(Product product) {
-        product.setUser(this);
-        products.add(product);
-    }
 
     @PrePersist
     private void init() {
